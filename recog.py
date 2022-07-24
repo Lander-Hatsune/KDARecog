@@ -42,4 +42,5 @@ def getkda(frame:np.ndarray):
         rand = str(np.random.random())[2:8]
         print(rand, res)
         img.save(f'{rand}.{res}.png')
+        return None
     return res
