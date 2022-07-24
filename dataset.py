@@ -6,13 +6,13 @@ from torch.utils.data import Dataset
 
 class KDADataset(Dataset):
 
-    def __init__(self):
+    def __init__(self, path):
 
         self.pathlist = []
         self.labels = []
-        for i in range(11):
-            for filename in os.listdir(f'data/{i}/'):
-                self.pathlist.append(f'data/{i}/{filename}')
+        for i in range(12):
+            for filename in os.listdir(f'{path}/{i}/'):
+                self.pathlist.append(f'{path}/{i}/{filename}')
                 self.labels.append(i)
 
     def __len__(self):

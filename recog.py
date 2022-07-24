@@ -1,3 +1,4 @@
+import re
 import torch
 import numpy as np
 from . import model
@@ -14,7 +15,12 @@ with pkg_resources.path(__package__, 'Net.pt') as path:
 def ocr1digit(digit:np.ndarray):
     feed = torch.tensor(digit / 255, dtype=torch.float).unsqueeze(0).to(device)
     out = net(feed).max(1)[1]
-    return str(out.item()) if out != 10 else '*'
+    if out == 10:
+        return '*'
+    elif out == 11:
+        return '-'
+    else:
+        return str(out.item())
 
 def getkda(frame:np.ndarray):
     # shape: [height, width, nchannels]
@@ -24,19 +30,16 @@ def getkda(frame:np.ndarray):
     imgarr = np.array(img)
 
     is_text = False
-    text_start = -1
     for icol in range(imgarr.shape[1]):
-        if sum(np.sort(imgarr[:, icol])[-3:]) > 250:
+        if sum(np.sort(imgarr[:, icol])[-3:]) > 230:
             is_text = True
-            if text_start == -1:
-                text_start = icol
         else:
             if is_text:
                 is_text = False
-                if icol - text_start >= 6: # minimum width of '1'
-                    digit = imgarr[:, max(0, icol - 9):icol]
-                    res += ocr1digit(digit)
-                else:
-                    res += '-'
-                text_start = -1
+                digit = imgarr[:, max(0, icol - 9):icol]
+                res += ocr1digit(digit)
+    if res and not re.match(r'\d+-\d+-\d+', res):
+        rand = str(np.random.random())[2:8]
+        print(rand, res)
+        img.save(f'{rand}.{res}.png')
     return res

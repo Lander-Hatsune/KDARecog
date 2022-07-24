@@ -7,18 +7,28 @@ from model import Net
 
 torch.manual_seed(814)
 
-EPOCH = 30
+EPOCH = 100
 
-dataloader = DataLoader(KDADataset(), batch_size=64, shuffle=True)
+train_dataloader = DataLoader(KDADataset('data/data_train'),
+                              batch_size=64, shuffle=True)
+validate_dataloader = DataLoader(KDADataset('data/data_validate'),
+                                 batch_size=240, shuffle=False)
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cpu')#'cuda' if torch.cuda.is_available() else 'cpu')
 
 net = Net().to(device)
 loss_fn = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters())
+optimizer = optim.Adam(net.parameters())
 
 for epoch in range(EPOCH):
-    for batchcnt, (imgs, labels) in enumerate(dataloader):
+    print(f'epoch: {epoch}')
+    for batchcnt, (imgs, labels) in enumerate(validate_dataloader):
+        imgs, labels = imgs.to(device), labels.to(device)
+        with torch.no_grad():
+            preds = net(imgs)
+    print(f'validate acc: {torch.sum(preds.max(1)[1] == labels) / 240:.4f}')
+    train_loss = 0
+    for batchcnt, (imgs, labels) in enumerate(train_dataloader):
         imgs, labels = imgs.to(device), labels.to(device)
         preds = net(imgs)
         loss = loss_fn(preds, labels)
@@ -27,6 +37,8 @@ for epoch in range(EPOCH):
         loss.backward()
         optimizer.step()
 
-        print(f'loss: {loss:.7f}')
+        train_loss += loss.item()
+
+    print(f'train loss: {train_loss:.7f}')
 
 torch.save(net.state_dict(), 'Net.pt')
