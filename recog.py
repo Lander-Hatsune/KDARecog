@@ -39,8 +39,6 @@ def getkda(frame:np.ndarray):
                 digit = imgarr[:, max(0, icol - 9):icol]
                 res += ocr1digit(digit)
     if res and not re.match(r'\d+-\d+-\d+', res):
-        rand = str(np.random.random())[2:8]
-        print(rand, res)
-        img.save(f'{rand}.{res}.png')
         return None
-    return res
+    else:
+        return res
