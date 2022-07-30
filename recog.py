@@ -34,9 +34,12 @@ def getkda(frame:np.ndarray):
         if sum(np.sort(imgarr[:, icol])[-3:]) > 230:
             is_text = True
         else:
+            if icol < 9:
+                continue
+            # icol >= 9
             if is_text:
                 is_text = False
-                digit = imgarr[:, max(0, icol - 9):icol]
+                digit = imgarr[:, icol - 9:icol]
                 res += ocr1digit(digit)
     if res and not re.match(r'\d+-\d+-\d+', res):
         return None
