@@ -24,9 +24,9 @@ def ocr1digit(digit:np.ndarray):
 
 def getkda(frame:np.ndarray):
     # shape: [height, width, nchannels]
-    # kda: [7:21, 1666:1743]
+    # kda: [7:21, 1663:1743]
     res = ''
-    img = Image.fromarray(frame[7:21, 1666:1743]).convert('L')
+    img = Image.fromarray(frame[7:21, 1663:1743]).convert('L')
     imgarr = np.array(img)
 
     is_text = False
@@ -41,6 +41,14 @@ def getkda(frame:np.ndarray):
                 is_text = False
                 digit = imgarr[:, icol - 9:icol]
                 res += ocr1digit(digit)
+
+    '''
+    if res == '4-0-0':
+        code = str(np.random.random())[2:8]
+        print(code)
+        img.save(f'{code}-{res}.png')
+    '''
+        
     if res and not re.match(r'\d+-\d+-\d+', res):
         return None
     else:
