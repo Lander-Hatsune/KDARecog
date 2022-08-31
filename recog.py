@@ -52,4 +52,4 @@ def getkda(frame:np.ndarray):
     if res and not re.match(r'\d+-\d+-\d+', res):
         return None
     else:
-        return res
+        return tuple(map(int, res.split('-')))
