@@ -42,6 +42,8 @@ def getkda(frame:np.ndarray):
                 digit = imgarr[:, icol - 9:icol]
                 res += ocr1digit(digit)
 
+    res = res.strip('-').strip('*')
+
     '''
     if res == '4-0-0':
         code = str(np.random.random())[2:8]
@@ -49,7 +51,7 @@ def getkda(frame:np.ndarray):
         img.save(f'{code}-{res}.png')
     '''
         
-    if res and not re.match(r'\d+-\d+-\d+', res):
+    if not res or not re.match(r'\d+-\d+-\d+', res):
         return None
     else:
         return tuple(map(int, res.split('-')))
