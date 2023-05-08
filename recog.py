@@ -44,15 +44,8 @@ def getkda(frame:np.ndarray):
 
     res = res.strip('-').strip('*')
 
-    '''
-    if res == '4-0-0':
-        code = str(np.random.random())[2:8]
-        print(code)
-        img.save(f'{code}-{res}.png')
-    '''
-        
     if np.random.randint(10) == 0:
-        img.save(f'sample-{np.random.randint(0xFF):02X}-{res}.png')
+        img.save(f'sample-{res}.png')
         
     if not res or not re.match(r'\d+-\d+-\d+', res):
         return None
