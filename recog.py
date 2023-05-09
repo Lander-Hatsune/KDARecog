@@ -29,16 +29,16 @@ def getkda(frame:np.ndarray):
     img = Image.fromarray(frame[7:21, 1653:1743]).convert('L')
     imgarr = np.array(img)
 
-    is_text = False
+    on_text = False
     for icol in range(imgarr.shape[1]):
         if sum(np.sort(imgarr[:, icol])[-3:]) > 230:
-            is_text = True
+            on_text = True
         else:
             if icol < 9:
                 continue
             # icol >= 9
-            if is_text:
-                is_text = False
+            if on_text:
+                on_text = False
                 digit = imgarr[:, icol - 9:icol]
                 res += ocr1digit(digit)
 
@@ -51,3 +51,37 @@ def getkda(frame:np.ndarray):
         return None
     else:
         return tuple(map(int, res.split('-')))
+
+def getgametime(frame:np.ndarray):
+    # shape: [height, width, nchannels]
+    # gametime: [7:21, 1856:1904]
+    res = ''
+    img = Image.fromarray(frame[7:21, 1856:1904]).convert('L')
+    imgarr = np.array(img)
+
+    on_text = False
+    for icol in range(imgarr.shape[1]):
+        if sum(np.sort(imgarr[:, icol])[-3:]) > 230:
+            on_text = True
+        else:
+            if icol < 9:
+                continue
+            # icol >= 9
+            if on_text:
+                on_text = False
+                digit = imgarr[:, icol - 9:icol]
+                res += ocr1digit(digit)
+
+    res = res.strip('-').strip('*')
+
+    if np.random.randint(10) == 0:
+        img.save(f'sample-gametime-{res}.png')
+
+    if not res or not re.match(r'\d\d[\*-]\d\d', res):
+        return None
+    else:
+        min_ = int(res[:2])
+        sec_ = int(res[-2:])
+        return min_ * 60 + sec_
+                
+    
