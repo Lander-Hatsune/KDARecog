@@ -31,7 +31,7 @@ def getdigits(imgarr):
     on_text = False
     res = ''
     for icol in range(imgarr.shape[1]):
-        if sum(np.sort(imgarr[:, icol])[-3:]) > 230:
+        if sum(np.sort(imgarr[:, icol])[-3:]) > 350:
             if not on_text:
                 text_start = icol
                 on_text = True
@@ -69,7 +69,7 @@ def getgametime(frame:np.ndarray):
     imgarr = np.array(img)
     res = getdigits(imgarr)
 
-    if not res or not re.match(r'\d\d[\*-]\d\d', res):
+    if not res or not re.match(r'\d\d[\*-]?\d\d', res):
         return None
     else:
         min_ = int(res[:2])
