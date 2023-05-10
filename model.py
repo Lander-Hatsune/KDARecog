@@ -12,7 +12,7 @@ class Net(nn.Module):
         self.fc = nn.Sequential(
             nn.Linear(14 * 9, 128),
             nn.ReLU(),
-            nn.Linear(128, 12))
+            nn.Linear(128, 13))
 
     def forward(self, x):
 

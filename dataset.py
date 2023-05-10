@@ -10,8 +10,10 @@ class KDADataset(Dataset):
 
         self.pathlist = []
         self.labels = []
-        for i in range(12):
+        for i in range(13):
             for filename in os.listdir(f'{path}/{i}/'):
+                if not os.path.isfile(f'{path}/{i}/{filename}'):
+                    continue
                 self.pathlist.append(f'{path}/{i}/{filename}')
                 self.labels.append(i)
 
