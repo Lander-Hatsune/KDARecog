@@ -23,6 +23,8 @@ def ocr1digit(digit:np.ndarray):
         return '*'
     elif out == 11:
         return '-'
+    elif out == 12:
+        return ':'
     else:
         return str(out.item())
 
@@ -69,7 +71,7 @@ def getgametime(frame:np.ndarray):
     imgarr = np.array(img)
     res = getdigits(imgarr)
 
-    if not res or not re.match(r'\d\d[\*-]?\d\d', res):
+    if not res or not re.match(r'\d\d[\*-:]?\d\d', res):
         return None
     else:
         min_ = int(res[:2])
