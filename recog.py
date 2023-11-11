@@ -67,7 +67,7 @@ def getkda(frame:np.ndarray):
 def getgametime(frame:np.ndarray):
     # shape: [height, width, nchannels]
     # gametime: [7:21, 1856:1904]
-    img = Image.fromarray(frame[7:21, 1856:1904]).convert('L')
+    img = Image.fromarray(frame[7:21, 1854:1904]).convert('L')
     imgarr = np.array(img)
     res = getdigits(imgarr)
 
