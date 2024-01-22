@@ -9,11 +9,11 @@ torch.manual_seed(814)
 
 EPOCH = 100
 
-train_dataset = KDADataset('data-13/train')
+train_dataset = KDADataset('data-13-ck/train')
 train_dataloader = DataLoader(train_dataset,
                               batch_size=64, shuffle=True)
 
-validate_dataset = KDADataset('data-13/validate')
+validate_dataset = KDADataset('data-13-ck/validate')
 validate_dataloader = DataLoader(validate_dataset,
                                  batch_size=64, shuffle=False)
 
