@@ -12,13 +12,14 @@ net = model.Net().to(device)
 with pkg_resources.path(__package__, 'Net.pt') as path:
     net.load_state_dict(torch.load(path))
 
-def ocr1digit(digit:np.ndarray):
+
+def ocr1digit(digit: np.ndarray):
     feed = torch.tensor(digit / 255, dtype=torch.float).unsqueeze(0).to(device)
     out = net(feed).max(1)[1]
     # if True: #out.item() in [4, 7, 8, 9, 11]:
     #     (Image.fromarray(digit)
     #      .convert('L')
-    #      .save(f'data-predict/{out.item()}/{np.random.randint(0, 0xFFFF):04X}.png'))
+    #      .save(f'data-predict/{out.item()}-{np.random.randint(0, 0xFFFF):04X}.png'))
     if out == 10:
         return '*'
     elif out == 11:
@@ -27,6 +28,7 @@ def ocr1digit(digit:np.ndarray):
         return ':'
     else:
         return str(out.item())
+
 
 def getdigits(imgarr):
     text_start = None
@@ -52,10 +54,11 @@ def getdigits(imgarr):
     res = res.strip('-').strip('*')
     return res
 
-def getkda(frame:np.ndarray):
+
+def getkda(frame: np.ndarray):
     # shape: [height, width, nchannels]
     # kda: [7:21, 1663:1743] +[7:21, 1653:1743]+
-    img = Image.fromarray(frame[7:21, 1663:1743]).convert('L')
+    img = Image.fromarray(frame[7:21, 1656:1743]).convert('L')
     imgarr = np.array(img)
     res = getdigits(imgarr)
 
@@ -64,12 +67,14 @@ def getkda(frame:np.ndarray):
     else:
         return tuple(map(int, res.split('-')))
 
-def getgametime(frame:np.ndarray):
+
+def getgametime(frame: np.ndarray):
     # shape: [height, width, nchannels]
     # gametime: [7:21, 1856:1904]
-    img = Image.fromarray(frame[7:21, 1854:1904]).convert('L')
+    img = Image.fromarray(frame[7:21, 1847:1904]).convert('L')
     imgarr = np.array(img)
     res = getdigits(imgarr)
+    print(res)
 
     if not res or not re.match(r'\d\d[\*-:]?\d\d', res):
         return None
@@ -77,5 +82,3 @@ def getgametime(frame:np.ndarray):
         min_ = int(res[:2])
         sec_ = int(res[-2:])
         return min_ * 60 + sec_
-                
-    
