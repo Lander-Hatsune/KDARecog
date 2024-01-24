@@ -74,7 +74,6 @@ def getgametime(frame: np.ndarray):
     img = Image.fromarray(frame[7:21, 1847:1904]).convert('L')
     imgarr = np.array(img)
     res = getdigits(imgarr)
-    print(res)
 
     if not res or not re.match(r'\d\d[\*-:]?\d\d', res):
         return None
