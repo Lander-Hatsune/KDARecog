@@ -19,7 +19,7 @@ def ocr1digit(digit: np.ndarray):
     # if True: #out.item() in [4, 7, 8, 9, 11]:
     #     (Image.fromarray(digit)
     #      .convert('L')
-    #      .save(f'data-predict/{out.item()}/{np.random.randint(0, 0xFFFF):04X}.png'))
+    #      .save(f'KDARecog/data-13-ck/{out.item()}/{np.random.randint(0, 0xFFFF):04X}.png'))
     if out == 10:
         return '*'
     elif out == 11:
@@ -58,7 +58,7 @@ def getdigits(imgarr):
 def getkda(frame: np.ndarray):
     # shape: [height, width, nchannels]
     # kda: [7:21, 1663:1743] +[7:21, 1653:1743]+
-    img = Image.fromarray(frame[7:21, 1658:1743]).convert('L')
+    img = Image.fromarray(frame[7:21, 1656:1743]).convert('L')
     imgarr = np.array(img)
     res = getdigits(imgarr)
 
