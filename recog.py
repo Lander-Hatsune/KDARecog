@@ -19,7 +19,7 @@ def ocr1digit(digit: np.ndarray):
     # if True: #out.item() in [4, 7, 8, 9, 11]:
     #     (Image.fromarray(digit)
     #      .convert('L')
-    #      .save(f'KDARecog/data-13-ck/{out.item()}/{np.random.randint(0, 0xFFFF):04X}.png'))
+    #      .save(f'KDARecog/data-13-ck/{out.item()}-{np.random.randint(0, 0xFFFF):04X}.png'))
     if out == 10:
         return '*'
     elif out == 11:
@@ -35,7 +35,7 @@ def getdigits(imgarr):
     on_text = False
     res = ''
     for icol in range(imgarr.shape[1]):
-        if sum(np.sort(imgarr[:, icol])[-3:]) > 350:
+        if sum(np.sort(imgarr[:, icol])[-3:]) > 335:
             if not on_text:
                 text_start = icol
                 on_text = True
@@ -55,10 +55,21 @@ def getdigits(imgarr):
     return res
 
 
+def cutBlack(slice: np.ndarray):
+    rearPtr = slice.shape[1] - 1
+    channelSum = slice.sum(2)
+    while sum(np.sort(channelSum[:, rearPtr])[-3:]) < 145:
+        rearPtr -= 1
+        if rearPtr <= 1500:
+            break
+    return slice[:, :rearPtr]
+
+
 def getkda(frame: np.ndarray):
     # shape: [height, width, nchannels]
-    # kda: [7:21, 1663:1743] +[7:21, 1653:1743]+
-    img = Image.fromarray(frame[7:21, 1656:1743]).convert('L')
+    # kda: [7:21, -254:-160]
+    slice = cutBlack(frame[7:21])
+    img = Image.fromarray(slice[:, -254:-160]).convert('L')
     imgarr = np.array(img)
     res = getdigits(imgarr)
 
@@ -71,12 +82,12 @@ def getkda(frame: np.ndarray):
 
 def getgametime(frame: np.ndarray):
     # shape: [height, width, nchannels]
-    # gametime: [7:21, 1856:1904]
-    img = Image.fromarray(frame[7:21, 1847:1904]).convert('L')
+    # gametime: [7:21, -64:]
+    slice = cutBlack(frame[7:21])
+    img = Image.fromarray(slice[:, -64:]).convert("L")
     imgarr = np.array(img)
     res = getdigits(imgarr)
 
-    # print(res)
     if not res or not re.match(r'\d\d[\*-:]?\d\d', res):
         return None
     else:
