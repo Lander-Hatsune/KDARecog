@@ -19,7 +19,7 @@ def ocr1digit(digit: np.ndarray):
     # if True: #out.item() in [4, 7, 8, 9, 11]:
     #     (Image.fromarray(digit)
     #      .convert('L')
-    #      .save(f'KDARecog/data-13-ck/{out.item()}-{np.random.randint(0, 0xFFFF):04X}.png'))
+    #      .save(f'KDARecog/data/{out.item()}-{np.random.randint(0, 0xFFFF):04X}.png'))
     if out == 10:
         return '*'
     elif out == 11:
@@ -30,12 +30,12 @@ def ocr1digit(digit: np.ndarray):
         return str(out.item())
 
 
-def getdigits(imgarr):
+def getdigits(imgarr: np.ndarray):
     text_start = None
     on_text = False
     res = ''
     for icol in range(imgarr.shape[1]):
-        if sum(np.sort(imgarr[:, icol])[-3:]) > 335:
+        if sum(np.sort(imgarr[:, icol])[-2:]) > 220:
             if not on_text:
                 text_start = icol
                 on_text = True
@@ -87,6 +87,7 @@ def getgametime(frame: np.ndarray):
     img = Image.fromarray(slice[:, -64:]).convert("L")
     imgarr = np.array(img)
     res = getdigits(imgarr)
+    # img.save(f"KDARecog/data/{res.replace(':', 'c').replace('*', 'x')}-{np.random.randint(0, 0xFFFF):04X}.png")
 
     if not res or not re.match(r'\d\d[\*-:]?\d\d', res):
         return None

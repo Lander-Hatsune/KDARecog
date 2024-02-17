@@ -2,6 +2,7 @@
 *__pycache__/
 
 # Dataset
+data*
 data-13-ck/
 
 # Emacs
