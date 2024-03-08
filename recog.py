@@ -35,7 +35,7 @@ def getdigits(imgarr: np.ndarray):
     on_text = False
     res = ''
     for icol in range(imgarr.shape[1]):
-        if sum(np.sort(imgarr[:, icol])[-2:]) > 220:
+        if sum(np.sort(imgarr[:, icol])[-2:]) > 235:
             if not on_text:
                 text_start = icol
                 on_text = True
