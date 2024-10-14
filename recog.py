@@ -34,6 +34,7 @@ def getdigits(imgarr: np.ndarray):
     text_start = None
     on_text = False
     res = ''
+    imgarr = imgarr.astype(np.int16)
     for icol in range(imgarr.shape[1]):
         if sum(np.sort(imgarr[:, icol])[-2:]) > 235:
             if not on_text:
@@ -56,13 +57,18 @@ def getdigits(imgarr: np.ndarray):
 
 
 def cutBlack(slice: np.ndarray):
-    rearPtr = slice.shape[1] - 1
+    rightPtr = slice.shape[1] - 1
     channelSum = slice.sum(2)
-    while sum(np.sort(channelSum[:, rearPtr])[-3:]) < 145:
-        rearPtr -= 1
-        if rearPtr <= 1500:
+    while sum(np.sort(channelSum[:, rightPtr])[-3:]) < 145:
+        rightPtr -= 1
+        if rightPtr <= 1500:
             break
-    return slice[:, :rearPtr]
+    topPtr = 0
+    while sum(np.sort(channelSum[topPtr, :])[-3:]) < 145:
+        topPtr += 1
+        if topPtr >= 500:
+            break
+    return slice[topPtr:, :rightPtr]
 
 
 def getkda(frame: np.ndarray):
@@ -83,8 +89,8 @@ def getkda(frame: np.ndarray):
 def getgametime(frame: np.ndarray):
     # shape: [height, width, nchannels]
     # gametime: [7:21, -64:]
-    slice = cutBlack(frame[7:21])
-    img = Image.fromarray(slice[:, -64:]).convert("L")
+    slice = cutBlack(frame)
+    img = Image.fromarray(slice[7:21, -64:]).convert("L")
     imgarr = np.array(img)
     res = getdigits(imgarr)
     # img.save(f"KDARecog/data/{res.replace(':', 'c').replace('*', 'x')}-{np.random.randint(0, 0xFFFF):04X}.png")
