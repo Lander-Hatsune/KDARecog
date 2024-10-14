@@ -9,11 +9,11 @@ torch.manual_seed(814)
 
 EPOCH = 100
 
-train_dataset = KDADataset('data13-ck-v3/train')
+train_dataset = KDADataset('data13-ck-v4/train')
 train_dataloader = DataLoader(train_dataset,
                               batch_size=64, shuffle=True)
 
-validate_dataset = KDADataset('data13-ck-v3/validate')
+validate_dataset = KDADataset('data13-ck-v4/validate')
 validate_dataloader = DataLoader(validate_dataset,
                                  batch_size=64, shuffle=False)
 
@@ -22,6 +22,8 @@ device = torch.device('cpu')#'cuda' if torch.cuda.is_available() else 'cpu')
 net = Net().to(device)
 loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.Adam(net.parameters())
+
+best_validate_acc = 0
 
 for epoch in range(EPOCH):
     print(f'epoch: {epoch}')
@@ -33,7 +35,13 @@ for epoch in range(EPOCH):
         with torch.no_grad():
             preds = net(imgs)
         validate_correct_cnt += torch.sum(preds.max(1)[1] == labels)
-    print(f'validate acc: {validate_correct_cnt / validate_cnt:.4f}')
+    validate_acc = validate_correct_cnt / validate_cnt
+    print(f'validate acc: {validate_acc:.4f}')
+
+    if validate_acc > best_validate_acc:
+        best_validate_acc = validate_acc
+        torch.save(net.state_dict(), 'Net.pt')
+
     train_loss = 0
     for batchcnt, (imgs, labels) in enumerate(train_dataloader):
         imgs, labels = imgs.to(device), labels.to(device)
@@ -48,4 +56,3 @@ for epoch in range(EPOCH):
 
     print(f'train loss: {train_loss:.7f}')
 
-torch.save(net.state_dict(), 'Net.pt')
