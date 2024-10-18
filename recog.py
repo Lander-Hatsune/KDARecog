@@ -59,12 +59,12 @@ def getdigits(imgarr: np.ndarray):
 def cutBlack(slice: np.ndarray):
     rightPtr = slice.shape[1] - 1
     channelSum = slice.sum(2)
-    while sum(np.sort(channelSum[:, rightPtr])[-3:]) < 145:
+    while sum(np.sort(channelSum[:, rightPtr])[-3:]) < 200:
         rightPtr -= 1
         if rightPtr <= 1500:
             break
     topPtr = 0
-    while sum(np.sort(channelSum[topPtr, :])[-3:]) < 145:
+    while sum(np.sort(channelSum[topPtr, :])[-3:]) < 200:
         topPtr += 1
         if topPtr >= 500:
             break
@@ -74,8 +74,8 @@ def cutBlack(slice: np.ndarray):
 def getkda(frame: np.ndarray):
     # shape: [height, width, nchannels]
     # kda: [7:21, -254:-160]
-    slice = cutBlack(frame[7:21])
-    img = Image.fromarray(slice[:, -254:-160]).convert('L')
+    slice = cutBlack(frame)
+    img = Image.fromarray(slice[7:21, -254:-160]).convert('L')
     imgarr = np.array(img)
     res = getdigits(imgarr)
 
