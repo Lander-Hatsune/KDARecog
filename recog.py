@@ -80,22 +80,17 @@ def getkda(frame: np.ndarray):
     imgarr = np.array(img)
     res = getdigits(imgarr)
 
-    scoreboard = _getscoreboard(slice)
-
     # print(res)
     if not res or not re.match(r'\d+-\d+-\d+', res):
         return None
     else:
-        return tuple(map(int, res.split('-'))), scoreboard
+        kda = tuple(map(int, res.split('-')))
+        return kda
 
-def getscoreboard(frame: np.ndarray):
+def getscore(frame: np.ndarray):
     slice = cutBlack(frame)
-    return _getscoreboard(slice)
-
-
-def _getscoreboard(slice: np.array):
-    img0 = Image.fromarray(slice[7:21, -362:-339]).convert('L')
-    img1 = Image.fromarray(slice[7:21, -324:-301]).convert('L')
+    img0 = Image.fromarray(slice[7:21, -359:-336]).convert('L')
+    img1 = Image.fromarray(slice[7:21, -314:-291]).convert('L')
 
     # red is dimmer than blue
     if np.sort(np.reshape(img0, (-1,)))[-3:].sum() > \
@@ -108,7 +103,9 @@ def _getscoreboard(slice: np.array):
     img1_ac = ImageOps.autocontrast(img1, cutoff=10)
     res0 = getdigits(np.array(img0_ac))
     res1 = getdigits(np.array(img1_ac))
-    print((res0, res1) if ally_to_enemy else (res1, res0))
+    # img0_ac.save(f"KDARecog/data/score/{res0}-{np.random.randint(0, 0xFFFF):04X}.png")
+    # img1_ac.save(f"KDARecog/data/score/{res1}-{np.random.randint(0, 0xFFFF):04X}.png")
+    # print((res0, res1) if ally_to_enemy else (res1, res0))
     if not res0.isdigit() or not res1.isdigit():
         return None
     return (res0, res1) if ally_to_enemy else (res1, res0)
