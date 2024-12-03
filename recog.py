@@ -36,11 +36,8 @@ def getdigits(imgarr: np.ndarray):
     res = ''
     imgarr = imgarr.astype(np.int16)
     for icol in range(imgarr.shape[1]):
-        if sum(np.sort(imgarr[:, icol])[-2:]) > 235:
-            if not on_text:
-                text_start = icol
-                on_text = True
-        else:
+        if sum(np.sort(imgarr[:, icol])[-2:]) < 235 or \
+            icol == imgarr.shape[1] - 1:
             if icol < 9:
                 continue
             # icol >= 9
@@ -51,6 +48,10 @@ def getdigits(imgarr: np.ndarray):
                 digit = np.zeros((imgarr.shape[0], 9))
                 digit[:, -text_width:] = imgarr[:, text_start:icol]
                 res += ocr1digit(digit)
+        else:
+            if not on_text:
+                text_start = icol
+                on_text = True
 
     res = res.strip('-').strip('*')
     return res
