@@ -13,28 +13,31 @@ with pkg_resources.path(__package__, 'Net.pt') as path:
     net.load_state_dict(torch.load(path))
 
 
-def ocr1digit(digit: np.ndarray):
-    feed = torch.tensor(digit / 255, dtype=torch.float).unsqueeze(0).to(device)
+def modelio(batch: np.ndarray):
+    feed = torch.tensor(batch / 255, dtype=torch.float).to(device)
     out = net(feed).max(1)[1]
     # if True: #out.item() in [4, 7, 8, 9, 11]:
     #     (Image.fromarray(digit)
     #      .convert('L')
     #      .save(f'KDARecog/data/{out.item()}-{np.random.randint(0, 0xFFFF):04X}.png'))
-    if out == 10:
-        return '*'
-    elif out == 11:
-        return '-'
-    elif out == 12:
-        return ':'
-    else:
-        return str(out.item())
+    res = ""
+    for o in out:
+        if o == 10:
+            res += '*'
+        elif o == 11:
+            res += '-'
+        elif o == 12:
+            res += ':'
+        else:
+            res += str(o.item())
+    return res
 
 
 def getdigits(imgarr: np.ndarray):
     text_start = None
     on_text = False
-    res = ''
     imgarr = imgarr.astype(np.int16)
+    batch = []
     for icol in range(imgarr.shape[1]):
         if sum(np.sort(imgarr[:, icol])[-2:]) < 235 or \
             icol == imgarr.shape[1] - 1:
@@ -47,12 +50,17 @@ def getdigits(imgarr: np.ndarray):
                 text_width = icol - text_start
                 digit = np.zeros((imgarr.shape[0], 9))
                 digit[:, -text_width:] = imgarr[:, text_start:icol]
-                res += ocr1digit(digit)
+                batch.append(digit)
         else:
             if not on_text:
                 text_start = icol
                 on_text = True
-
+    
+    if not batch:
+        return ""
+    
+    batch = np.array(batch)
+    res = modelio(batch)
     res = res.strip('-').strip('*')
     return res
 
@@ -90,8 +98,8 @@ def getkda(frame: np.ndarray):
 
 def getscore(frame: np.ndarray):
     slice = cutBlack(frame)
-    img0 = Image.fromarray(slice[7:21, -359:-336]).convert('L')
-    img1 = Image.fromarray(slice[7:21, -314:-291]).convert('L')
+    img0 = Image.fromarray(slice[7:21, -376:-343]).convert('L')
+    img1 = Image.fromarray(slice[7:21, -325:-292]).convert('L')
 
     # red is dimmer than blue
     if np.sort(np.reshape(img0, (-1,)))[-3:].sum() > \
@@ -104,8 +112,10 @@ def getscore(frame: np.ndarray):
     img1_ac = ImageOps.autocontrast(img1, cutoff=10)
     res0 = getdigits(np.array(img0_ac))
     res1 = getdigits(np.array(img1_ac))
-    # img0_ac.save(f"KDARecog/data/score/{res0}-{np.random.randint(0, 0xFFFF):04X}.png")
-    # img1_ac.save(f"KDARecog/data/score/{res1}-{np.random.randint(0, 0xFFFF):04X}.png")
+    # salt = f"{np.random.randint(0, 0xFFFF):04X}"
+    # Image.fromarray(frame).save(f"KDARecog/data/{salt}.png")
+    # img0.save(f"KDARecog/data/{salt}-l-{res0}.png")
+    # img1.save(f"KDARecog/data/{salt}-r-{res1}.png")
     # print((res0, res1) if ally_to_enemy else (res1, res0))
     if not res0.isdigit() or not res1.isdigit():
         return None
