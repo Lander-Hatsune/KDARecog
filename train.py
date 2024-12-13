@@ -3,17 +3,19 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
+from torch.utils.tensorboard import SummaryWriter  # Import TensorBoard
 from dataset import KDADataset
 from model import Net
 
 torch.manual_seed(814)
 
-EPOCH = 100
+EPOCH = 300
 NUM_CLASSES = 13  # Number of classes in your dataset
 
+# Initialize TensorBoard writer
+writer = SummaryWriter(log_dir="./logs")
+
 train_transform = transforms.Compose([
-    # transforms.RandomRotation(degrees=15),  # Rotate by ±15 degrees
-    # transforms.RandomHorizontalFlip(),      # 50% chance to flip
     transforms.RandomResizedCrop(size=(15, 9), scale=(0.8, 1.0)),  # Random crop and resize
     transforms.ColorJitter(brightness=0.2, contrast=0.2),  # Adjust brightness and contrast
     transforms.ToTensor(),                  # Convert to Tensor
@@ -27,8 +29,8 @@ val_transform = transforms.Compose([
 ])
 
 # Initialize datasets
-train_dataset = KDADataset(root_dir="data12-ck-v1/train", transform=train_transform)
-validate_dataset = KDADataset(root_dir="data12-ck-v1/validate", transform=val_transform)
+train_dataset = KDADataset(root_dir="data13-ck-v6/train", transform=train_transform)
+validate_dataset = KDADataset(root_dir="data13-ck-v6/validate", transform=val_transform)
 
 train_dataloader = DataLoader(train_dataset,
                               batch_size=64, shuffle=True)
@@ -36,7 +38,7 @@ train_dataloader = DataLoader(train_dataset,
 validate_dataloader = DataLoader(validate_dataset,
                                  batch_size=64, shuffle=False)
 
-device = torch.device('cpu')  # 'cuda' if torch.cuda.is_available() else 'cpu'
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 net = Net().to(device)
 loss_fn = nn.CrossEntropyLoss()
@@ -64,21 +66,16 @@ for epoch in range(EPOCH):
             class_correct[i] += torch.sum((predicted_labels == i) & (labels == i))
             class_total[i] += torch.sum(labels == i)
     
-    # Display class-specific accuracies
-    print(f'Validation Results for Epoch {epoch + 1}')
-    print(f"{'Class':^10} | {'Correct':^10} | {'Total':^10} | {'Accuracy (%)':^15}")
-    print('-' * 50)
-    
+    # Log class-specific accuracies to TensorBoard
     class_accuracy = class_correct / class_total
+    # Log class-specific accuracies to a single graph in TensorBoard
     for i in range(NUM_CLASSES):
-        if class_total[i] > 0:  # Avoid division by zero
-            accuracy = class_accuracy[i].item() * 100
-            print(f'{i:^10} | {int(class_correct[i].item()):^10} | {int(class_total[i].item()):^10} | {accuracy:^15.2f}')
-        else:
-            print(f'{i:^10} | {"-":^10} | {"-":^10} | {"N/A":^15}')
-    
-    # Calculate and display overall validation accuracy
+        accuracy = class_accuracy[i].item() * 100 if class_total[i] > 0 else 0.0
+        writer.add_scalars('Validation/Class_Accuracies', {f'Class_{i}': accuracy}, epoch)
+
+    # Calculate and log overall validation accuracy
     overall_validate_acc = class_correct.sum() / class_total.sum()
+    writer.add_scalar('Validation/Overall_Accuracy', overall_validate_acc, epoch)
     print(f'\nOverall validation accuracy: {overall_validate_acc:.4f}\n')
 
     # Save model if this is the best validation accuracy so far
@@ -100,9 +97,11 @@ for epoch in range(EPOCH):
         optimizer.step()
 
         train_loss += loss.item()
-
+    
+    # Log training loss to TensorBoard
+    writer.add_scalar('Training/Loss', train_loss, epoch)
     print(f'Training loss for Epoch {epoch + 1}: {train_loss:.7f}\n')
 
+# Save final model
 torch.save(net.state_dict(), 'Net.pt')
-
-
+writer.close()  # Close TensorBoard writer

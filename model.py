@@ -17,7 +17,7 @@ class Net(nn.Module):
             nn.ReLU(),
             nn.BatchNorm1d(128),
             nn.Dropout(0.3),
-            nn.Linear(128, 12)
+            nn.Linear(128, 13)
         )
         self.softmax = nn.Softmax(dim=1)
         self.confidence_thr = confidence_thr
@@ -37,6 +37,6 @@ class Net(nn.Module):
         confidence, predictions = torch.max(probabilities, dim=1)
         
         # Apply confidence threshold logic
-        predictions[confidence < self.confidence_thr] = -1  # "evaluation failure" token
+        predictions[confidence < self.confidence_thr] = 10  # "evaluation failure" token
         
         return predictions, confidence

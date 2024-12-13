@@ -31,11 +31,11 @@ def modelio(batch: np.ndarray, debug=None):
     #     Image.fromarray(c).convert('L').save(f'KDARecog/data/{out[i].item()}-{debug}_{np.random.randint(0, 0xFFFFFF):06X}.png')
     res = ""
     for o in out:
-        if o == -1:
+        if o == 10:
             res += 'x'
-        elif o == 10:
-            res += 'd'
         elif o == 11:
+            res += 'd'
+        elif o == 12:
             res += 'c'
         else:
             res += str(o.item())
@@ -138,7 +138,6 @@ def getall(frame: np.ndarray, debug=""):
     ]
 
     # for i, arr in enumerate(arrs):
-    #     print(arr.shape)
     #     ImageOps.autocontrast(
     #         Image.fromarray(arr), cutoff=5).save(f'KDARecog/data/debug/arr_{["T", "CS", "KDA", "SL", "SR"][i]}.jpg')
 
