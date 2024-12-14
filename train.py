@@ -16,7 +16,7 @@ NUM_CLASSES = 13  # Number of classes in your dataset
 writer = SummaryWriter(log_dir="./logs")
 
 train_transform = transforms.Compose([
-    transforms.RandomResizedCrop(size=(15, 9), scale=(0.8, 1.0)),  # Random crop and resize
+    # transforms.RandomResizedCrop(size=(15, 9), scale=(0.8, 1.0)),  # Random crop and resize
     transforms.ColorJitter(brightness=0.2, contrast=0.2),  # Adjust brightness and contrast
     transforms.ToTensor(),                  # Convert to Tensor
     transforms.Normalize(mean=[0.5], std=[0.5])  # Normalize to [-1, 1]
@@ -29,14 +29,14 @@ val_transform = transforms.Compose([
 ])
 
 # Initialize datasets
-train_dataset = KDADataset(root_dir="data13-ck-v6/train", transform=train_transform)
-validate_dataset = KDADataset(root_dir="data13-ck-v6/validate", transform=val_transform)
+train_dataset = KDADataset(root_dir="data13-ck-v7/train", transform=train_transform)
+validate_dataset = KDADataset(root_dir="data13-ck-v7/validate", transform=val_transform)
 
 train_dataloader = DataLoader(train_dataset,
-                              batch_size=64, shuffle=True)
+                              batch_size=128, shuffle=True)
 
 validate_dataloader = DataLoader(validate_dataset,
-                                 batch_size=64, shuffle=False)
+                                 batch_size=128, shuffle=False)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

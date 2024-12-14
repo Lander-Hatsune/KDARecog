@@ -10,7 +10,7 @@ import importlib.resources as pkg_resources
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 net = model.Net(confidence_thr=0.75).to(device)
-with pkg_resources.path(__package__, 'Net.pt') as path:
+with pkg_resources.path(__package__, 'Net.cnn.val.pt') as path:
     net.load_state_dict(torch.load(path))
 net.eval()
 
@@ -42,7 +42,7 @@ def modelio(batch: np.ndarray, debug=None):
     return res
 
 
-def getdigits(imgarr: np.ndarray, debug=None):
+def split(imgarr: np.ndarray, debug=None):
     # print("getdigits()", debug)
     text_start = None
     on_text = False
@@ -71,13 +71,9 @@ def getdigits(imgarr: np.ndarray, debug=None):
                 # print(f"text start")
                 text_start = icol
                 on_text = True
-    
-    if not batch:
-        return ""
-    
+        
     batch = np.array(batch)
-    res = modelio(batch, debug=debug)
-    return res
+    return batch
     # res = res.strip('d').strip('x')
 
 
@@ -141,13 +137,27 @@ def getall(frame: np.ndarray, debug=""):
     #     ImageOps.autocontrast(
     #         Image.fromarray(arr), cutoff=5).save(f'KDARecog/data/debug/arr_{["T", "CS", "KDA", "SL", "SR"][i]}.jpg')
 
-    time_s, cs_s, kda_s, score_l_s, score_r_s = [
-        getdigits(np.array(ImageOps.autocontrast(
+    ubatchs = [
+        split(np.array(ImageOps.autocontrast(
             Image.fromarray(arr), cutoff=5)), 
-            # debug=debug + "@" + ["T", "CS", "KDA", "SL", "SR"][i],
+            debug=debug + "@" + ["T", "CS", "KDA", "SL", "SR"][i],
         ) for i, arr in enumerate(arrs)
     ]
-    
+
+    indices = np.zeros(len(ubatchs) + 1, dtype=int)
+    np.cumsum([len(ub) for ub in ubatchs], out=indices[1:])
+
+    valid_ubs = [ub for ub in ubatchs if ub.size != 0]
+    if not len(valid_ubs):
+        res = ""
+    else:
+        batch = np.concatenate(valid_ubs)
+        res = modelio(batch, debug=debug)
+
+    time_s, cs_s, kda_s, score_l_s, score_r_s = [
+        res[indices[i]:indices[i+1]] for i in range(len(ubatchs))
+    ]
+
     # print(time_s)
     # print(cs_s)
     # print(kda_s)
