@@ -174,6 +174,7 @@ def getall(frame: np.ndarray, debug=""):
 
 
     # KDA
+    kda_s = kda_s.strip("xdc")
     if not kda_s or not re.match(r'\d+d\d+d\d+', kda_s):
         kda = None
     else:
