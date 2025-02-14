@@ -187,7 +187,7 @@ def getall(frame: np.ndarray, debug=""):
         cs = int(cs_s)
 
     # time
-    if not time_s or not re.match(r'\d\d[xdc]?\d\d', time_s):
+    if not time_s or not re.fullmatch(r'\d\d[xdc]?\d\d', time_s):
         time = None
     else:
         min_ = int(time_s[:2])
