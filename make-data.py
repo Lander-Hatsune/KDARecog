@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-from model import Net
+from KDARecog.model import Net
 from PIL import Image
 from moviepy.video.io.VideoFileClip import VideoFileClip
 

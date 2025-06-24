@@ -1,7 +1,7 @@
 import re
 import torch
 import numpy as np
-from . import model
+import KDARecog.model as model
 from PIL import Image, ImageOps
 from torchvision import transforms
 import matplotlib.pyplot as plt
@@ -10,7 +10,7 @@ import importlib.resources as pkg_resources
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 net = model.Net(confidence_thr=0.75).to(device)
-with pkg_resources.path(__package__, 'Net.cnn.val.pt') as path:
+with pkg_resources.path("KDARecog", 'Net.cnn.val.pt') as path:
     net.load_state_dict(torch.load(path))
 net.eval()
 

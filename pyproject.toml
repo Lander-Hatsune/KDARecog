@@ -1,0 +1,27 @@
+[project]
+name = "KDARecog"
+version = "0.1.0"
+description = "Simple neural network for K/D/A extraction from LOL screenshots"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "torch",
+    "numpy",
+    "Pillow",
+    "matplotlib",
+    "torchvision"
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["KDARecog"]
+
+[tool.setuptools.package-dir]
+KDARecog = "."
+
+[tool.setuptools.package-data]
+# Ensure model weights or other data files are included
+KDARecog = ["*.pt"]

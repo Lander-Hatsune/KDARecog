@@ -9,3 +9,5 @@ data-13-ck/
 *~
 
 logs/
+
+*.egg-info

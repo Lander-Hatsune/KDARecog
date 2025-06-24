@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from torch.utils.tensorboard import SummaryWriter  # Import TensorBoard
 from dataset import KDADataset
-from model import Net
+from KDARecog.model import Net
 
 torch.manual_seed(814)
 
